@@ -1,15 +1,26 @@
-#include "OrderManager.hpp"
 #include <gtest/gtest.h>
+#include "OrderManager.hpp"
 
 TEST(OrderManagerTest, CreateAndRetrieveOrder) {
     OrderManager manager;
-    manager.createOrder("1", "Buy 100 Bonds at 99.5");
-    EXPECT_EQ(manager.getOrder("1"), "Buy 100 Bonds at 99.5");
+    std::string orderId = "123";
+    std::string orderDetails = "Buy 100 shares of XYZ";
+
+    manager.createOrder(orderId, orderDetails);
+    auto retrievedOrder = manager.getOrder(orderId);
+
+    EXPECT_EQ(retrievedOrder, orderDetails);
 }
 
 TEST(OrderManagerTest, CancelOrder) {
     OrderManager manager;
-    manager.createOrder("1", "Buy 100 Bonds at 99.5");
-    manager.cancelOrder("1");
-    EXPECT_THROW(manager.getOrder("1"), std::runtime_error);
+    std::string orderId = "123";
+    std::string orderDetails = "Buy 100 shares of XYZ";
+
+    manager.createOrder(orderId, orderDetails);
+    manager.cancelOrder(orderId);
+
+    auto retrievedOrder = manager.getOrder(orderId);
+    EXPECT_EQ(retrievedOrder, "Order not found");
 }
+

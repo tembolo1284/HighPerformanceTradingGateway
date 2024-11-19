@@ -1,26 +1,23 @@
+#include <iostream>
+#include <unordered_map>
 #include "FixMessageHandler.hpp"
-#include "OrderManager.hpp"
-#include "MarketDataProcessor.hpp"
-#include "Logger.hpp"
 
 int main() {
-    Logger::log("Starting HighPerformanceTradingGateway");
-
-    // FIX Message Handler Example
     FixMessageHandler fixHandler;
-    auto fields = fixHandler.parseMessage("35=D|49=Sender|56=Target|");
-    std::string fixMessage = fixHandler.createMessage(fields);
-    Logger::log("Generated FIX Message: " + fixMessage);
 
-    // Order Manager Example
-    OrderManager orderManager;
-    orderManager.createOrder("1", "Buy 100 Bonds at 99.5");
-    Logger::log("Order Created: " + orderManager.getOrder("1"));
+    // Parsing a FIX message
+    auto fields = fixHandler.parseFixMessage("35=D|49=Sender|56=Target|");
 
-    // Market Data Processor Example
-    MarketDataProcessor marketDataProcessor;
-    marketDataProcessor.processMarketData("Bond Price: 99.6");
-    Logger::log("Processed Market Data");
+    // Output the parsed fields
+    for (const auto& [key, value] : fields) {
+        std::cout << key << ": " << value << std::endl;
+    }
+
+    // Building a FIX message
+    std::string fixMessage = fixHandler.buildFixMessage(fields);
+
+    // Output the FIX message
+    std::cout << "FIX Message: " << fixMessage << std::endl;
 
     return 0;
 }

@@ -1,53 +1,36 @@
 #include "FixMessageHandler.hpp"
 #include <sstream>
-#include <vector>
-#include <algorithm>
-#include <unordered_map>
+#include <map>
+#include <stdexcept>
 
-// Define the FIX field order
-const std::vector<std::string> FIX_FIELD_ORDER = {"35", "49", "56"};
-
-std::unordered_map<std::string, std::string> FixMessageHandler::parseMessage(const std::string& rawMessage) {
+std::unordered_map<std::string, std::string> FixMessageHandler::parseFixMessage(const std::string& fixMessage) {
     std::unordered_map<std::string, std::string> fields;
-    std::stringstream ss(rawMessage);
-    std::string keyValuePair;
+    std::istringstream stream(fixMessage);
+    std::string field;
 
-    while (std::getline(ss, keyValuePair, '|')) {
-        size_t delimiter = keyValuePair.find('=');
-        if (delimiter != std::string::npos) {
-            std::string key = keyValuePair.substr(0, delimiter);
-            std::string value = keyValuePair.substr(delimiter + 1);
-            fields[key] = value;
+    while (std::getline(stream, field, '|')) {
+        auto delimiterPos = field.find('=');
+        if (delimiterPos == std::string::npos) {
+            throw std::invalid_argument("Invalid FIX field: " + field);
         }
+
+        std::string key = field.substr(0, delimiterPos);
+        std::string value = field.substr(delimiterPos + 1);
+        fields[key] = value;
     }
 
     return fields;
 }
 
-std::string FixMessageHandler::createMessage(const std::unordered_map<std::string, std::string>& fields) {
-    // Order fields explicitly
-    std::vector<std::string> orderedKeys;
+std::string FixMessageHandler::buildFixMessage(const std::unordered_map<std::string, std::string>& fields) {
+    // Use a map to enforce consistent ordering of keys
+    std::map<std::string, std::string> orderedFields(fields.begin(), fields.end());
+    std::ostringstream oss;
 
-    // Add fields in FIX_FIELD_ORDER
-    for (const auto& key : FIX_FIELD_ORDER) {
-        if (fields.find(key) != fields.end()) {
-            orderedKeys.push_back(key);
-        }
+    for (const auto& [key, value] : orderedFields) {
+        oss << key << "=" << value << "|";
     }
 
-    // Add any remaining keys in lexicographical order
-    for (const auto& field : fields) {
-        if (std::find(orderedKeys.begin(), orderedKeys.end(), field.first) == orderedKeys.end()) {
-            orderedKeys.push_back(field.first);
-        }
-    }
-
-    // Generate the FIX message
-    std::string message;
-    for (const auto& key : orderedKeys) {
-        message += key + "=" + fields.at(key) + "|";
-    }
-
-    return message;
+    return oss.str();
 }
 

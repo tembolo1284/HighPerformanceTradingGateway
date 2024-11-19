@@ -1,66 +1,66 @@
-# Minimum CMake version
+# Specify the minimum version of CMake
 cmake_minimum_required(VERSION 3.14)
 
 # Project name and version
 project(HighPerformanceTradingGateway VERSION 1.0 LANGUAGES CXX)
 
-# Set C++ Standard
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-# Include directories
-include_directories(include)
-
-# Source files for the main application
-set(SOURCES
-    src/FixMessageHandler.cpp
-    src/OrderManager.cpp
-    src/MarketDataProcessor.cpp
-    src/Logger.cpp
-    src/ThreadPool.cpp
-)
-
-# Main application executable
-add_executable(HighPerformanceTradingGateway main.cpp ${SOURCES})
-
-# Compiler warnings
-if (MSVC)
-    target_compile_options(HighPerformanceTradingGateway PRIVATE /W4 /WX)
-else()
-    target_compile_options(HighPerformanceTradingGateway PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
 
 # Enable testing
 enable_testing()
 
-# Find Google Test
-find_package(GTest REQUIRED)
+# Include FetchContent module for dependency management
+include(FetchContent)
 
-# Test source files
-set(TEST_SOURCES
-    test/FixMessageHandlerTest.cpp
-    test/OrderManagerTest.cpp
-    test/MarketDataProcessorTest.cpp
-    test/LoggerTest.cpp
+# Fetch GoogleTest
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/release-1.11.0.zip
+)
+FetchContent_MakeAvailable(googletest)
+
+# Define source and include directories
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+set(TEST_DIR ${CMAKE_SOURCE_DIR}/test)
+
+# Add the main executable
+add_executable(HighPerformanceTradingGateway main.cpp
+    ${SRC_DIR}/FixMessageHandler.cpp
+    ${SRC_DIR}/Logger.cpp
+    ${SRC_DIR}/MarketDataProcessor.cpp
+    ${SRC_DIR}/OrderManager.cpp
+    ${SRC_DIR}/ThreadPool.cpp
 )
 
-# Test executable
-add_executable(HighPerformanceTradingGatewayTests ${TEST_SOURCES} ${SOURCES})
+# Include header files for the main executable
+target_include_directories(HighPerformanceTradingGateway PRIVATE ${INCLUDE_DIR})
 
-# Link libraries for tests
-target_link_libraries(HighPerformanceTradingGatewayTests
-    PRIVATE
-    GTest::GTest
-    GTest::Main
-    pthread
+# Add test executable
+add_executable(HighPerformanceTradingGatewayTests
+    ${TEST_DIR}/FixMessageHandlerTest.cpp
+    ${TEST_DIR}/LoggerTest.cpp
+    ${TEST_DIR}/MarketDataProcessorTest.cpp
+    ${TEST_DIR}/OrderManagerTest.cpp
+    ${SRC_DIR}/FixMessageHandler.cpp
+    ${SRC_DIR}/Logger.cpp
+    ${SRC_DIR}/MarketDataProcessor.cpp
+    ${SRC_DIR}/OrderManager.cpp
+    ${SRC_DIR}/ThreadPool.cpp
 )
 
-# Include directories for tests
-target_include_directories(HighPerformanceTradingGatewayTests PRIVATE include)
+# Link GoogleTest libraries and include headers
+target_link_libraries(HighPerformanceTradingGatewayTests PRIVATE gtest gtest_main)
+target_include_directories(HighPerformanceTradingGatewayTests PRIVATE ${INCLUDE_DIR})
 
-# Add tests to the test runner
-add_test(NAME FixMessageHandlerTest COMMAND HighPerformanceTradingGatewayTests)
-add_test(NAME OrderManagerTest COMMAND HighPerformanceTradingGatewayTests)
-add_test(NAME MarketDataProcessorTest COMMAND HighPerformanceTradingGatewayTests)
-add_test(NAME LoggerTest COMMAND HighPerformanceTradingGatewayTests)
+# Register tests with CTest
+add_test(NAME HighPerformanceTradingGatewayTests COMMAND HighPerformanceTradingGatewayTests)
+
+# Print project setup info
+message(STATUS "Project Name: ${PROJECT_NAME}")
+message(STATUS "Source Directory: ${SRC_DIR}")
+message(STATUS "Include Directory: ${INCLUDE_DIR}")
+message(STATUS "Test Directory: ${TEST_DIR}")
 

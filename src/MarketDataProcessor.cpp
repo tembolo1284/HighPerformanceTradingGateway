@@ -1,12 +1,16 @@
 #include "MarketDataProcessor.hpp"
+#include <sstream>
 
-void MarketDataProcessor::processMarketData(const std::string& data) {
-    std::lock_guard<std::mutex> lock(mtx_);
-    processedData_.push_back(data);
-}
+std::vector<std::string> MarketDataProcessor::process(const std::string& rawMarketData) {
+    std::vector<std::string> processedData;
+    std::istringstream stream(rawMarketData);
+    std::string dataPoint;
 
-const std::vector<std::string>& MarketDataProcessor::getProcessedData() const {
-    std::lock_guard<std::mutex> lock(mtx_);
-    return processedData_;
+    // Split raw market data by commas and store in the vector
+    while (std::getline(stream, dataPoint, ',')) {
+        processedData.push_back(dataPoint);
+    }
+
+    return processedData;
 }
 

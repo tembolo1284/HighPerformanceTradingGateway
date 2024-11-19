@@ -1,0 +1,21 @@
+# ninja log v5
+0	17	1732042512808061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-mkdir	7cc952c31e6582f4
+0	17	1732042512808061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-mkdir	7cc952c31e6582f4
+18	353	1732042513138061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-download	e93397143863a12
+18	353	1732042513138061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-download	e93397143863a12
+353	358	1732042513148061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-update	e7d97fdfc6c9c2e7
+353	358	1732042513148061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-update	e7d97fdfc6c9c2e7
+358	362	1732042513148061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-patch	ba31c324815ae2e8
+358	362	1732042513148061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-patch	ba31c324815ae2e8
+362	367	1732042513158061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-configure	97fc6a9b8e7a3af8
+362	367	1732042513158061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-configure	97fc6a9b8e7a3af8
+367	372	1732042513158061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-build	f4b04a8f029dc1a7
+367	372	1732042513158061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-build	f4b04a8f029dc1a7
+372	377	1732042513168061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-install	d2145b69120fffdd
+372	377	1732042513168061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-install	d2145b69120fffdd
+377	381	1732042513168061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-test	f2e0a85cb018490
+377	381	1732042513168061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-test	f2e0a85cb018490
+381	388	1732042513178061495	CMakeFiles/googletest-populate-complete	4ead7c2a6ecd494a
+381	388	1732042513178061495	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-done	4ead7c2a6ecd494a
+381	388	1732042513178061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/CMakeFiles/googletest-populate-complete	4ead7c2a6ecd494a
+381	388	1732042513178061495	/root/cpp-workspace/HighPerformanceTradingGateway/build/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-done	4ead7c2a6ecd494a

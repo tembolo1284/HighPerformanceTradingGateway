@@ -1,22 +1,14 @@
-#ifndef MARKETDATAPROCESSOR_HPP
-#define MARKETDATAPROCESSOR_HPP
+#ifndef MARKET_DATA_PROCESSOR_HPP
+#define MARKET_DATA_PROCESSOR_HPP
 
 #include <string>
 #include <vector>
-#include <mutex>
 
 class MarketDataProcessor {
 public:
-    // Process incoming market data
-    void processMarketData(const std::string& data);
-
-    // Get processed data
-    const std::vector<std::string>& getProcessedData() const;
-
-private:
-    std::vector<std::string> processedData_; // List of processed data
-    mutable std::mutex mtx_; // Mutex for thread safety
+    // Method to process raw market data
+    std::vector<std::string> process(const std::string& rawMarketData);
 };
 
-#endif // MARKETDATAPROCESSOR_HPP
+#endif // MARKET_DATA_PROCESSOR_HPP
 
