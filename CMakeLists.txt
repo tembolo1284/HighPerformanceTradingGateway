@@ -19,6 +19,8 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/release-1.11.0.zip
 )
+# Configure GoogleTest to use shared CRT on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Define source and include directories
@@ -55,12 +57,12 @@ add_executable(HighPerformanceTradingGatewayTests
 target_link_libraries(HighPerformanceTradingGatewayTests PRIVATE gtest gtest_main)
 target_include_directories(HighPerformanceTradingGatewayTests PRIVATE ${INCLUDE_DIR})
 
-# Register tests with CTest
-add_test(NAME HighPerformanceTradingGatewayTests COMMAND HighPerformanceTradingGatewayTests)
+# Include GoogleTest module and discover tests
+include(GoogleTest)
+gtest_discover_tests(HighPerformanceTradingGatewayTests)
 
 # Print project setup info
 message(STATUS "Project Name: ${PROJECT_NAME}")
 message(STATUS "Source Directory: ${SRC_DIR}")
 message(STATUS "Include Directory: ${INCLUDE_DIR}")
 message(STATUS "Test Directory: ${TEST_DIR}")
-
