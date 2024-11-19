@@ -20,8 +20,10 @@ jobs:
         sudo apt update
         sudo apt install -y cmake ninja-build g++
 
-    - name: Configure project
-      run: cmake -B build -G Ninja
+    - name: Clean and Configure project
+      run: |
+        rm -rf build
+        cmake -B build -G Ninja
 
     - name: Build project
       run: cmake --build build
