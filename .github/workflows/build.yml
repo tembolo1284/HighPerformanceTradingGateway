@@ -1,11 +1,3 @@
-
----
-
-### **GitHub Actions Workflow**
-
-Save the following file as `.github/workflows/build.yml`:
-
-```yaml
 name: C++ CI
 
 on:
