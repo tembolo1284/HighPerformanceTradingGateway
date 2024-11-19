@@ -1,0 +1,5 @@
+/root/cpp-workspace/HighPerformanceTradingGateway/build/CMakeFiles/HighPerformanceTradingGateway.dir
+/root/cpp-workspace/HighPerformanceTradingGateway/build/CMakeFiles/HighPerformanceTradingGatewayTests.dir
+/root/cpp-workspace/HighPerformanceTradingGateway/build/CMakeFiles/test.dir
+/root/cpp-workspace/HighPerformanceTradingGateway/build/CMakeFiles/edit_cache.dir
+/root/cpp-workspace/HighPerformanceTradingGateway/build/CMakeFiles/rebuild_cache.dir

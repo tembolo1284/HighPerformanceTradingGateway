@@ -1,0 +1,12 @@
+# ninja log v5
+0	147	1732035390528053322	CMakeFiles/HighPerformanceTradingGateway.dir/src/MarketDataProcessor.cpp.o	da03742dbb58738a
+0	149	1732035390528053322	CMakeFiles/HighPerformanceTradingGateway.dir/src/Logger.cpp.o	2b4cfa9471170b43
+1	186	1732035390568053322	CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o	35805594b43a5437
+0	193	1732035390578053322	CMakeFiles/HighPerformanceTradingGateway.dir/src/OrderManager.cpp.o	ff7e029bfa5b356b
+0	205	1732035390588053322	CMakeFiles/HighPerformanceTradingGateway.dir/src/FixMessageHandler.cpp.o	28f9ecb2c97207d1
+0	293	1732035390678053322	CMakeFiles/HighPerformanceTradingGateway.dir/src/ThreadPool.cpp.o	3ee4bfb8a0d231d0
+293	383	1732035390768053322	HighPerformanceTradingGateway	226c66f6e343cce0
+1	456	1732035390838053322	CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/LoggerTest.cpp.o	a67e76b5e3bb397e
+1	472	1732035390848053322	CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/OrderManagerTest.cpp.o	98516b14628dfba4
+1	473	1732035390858053322	CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/MarketDataProcessorTest.cpp.o	d7a839a304d4dc78
+1	504	1732035390888053322	CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/FixMessageHandlerTest.cpp.o	bb5649f94ff356f0
