@@ -44,6 +44,15 @@ cmake_ninja_workdir = /root/cpp-workspace/HighPerformanceTradingGateway/build/
 
 build cmake_object_order_depends_target_HighPerformanceTradingGateway: phony || CMakeFiles/HighPerformanceTradingGateway.dir
 
+build CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o: CXX_COMPILER__HighPerformanceTradingGateway_ /root/cpp-workspace/HighPerformanceTradingGateway/main.cpp || cmake_object_order_depends_target_HighPerformanceTradingGateway
+  DEP_FILE = CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o.d
+  FLAGS = -Wall -Wextra -pedantic -Werror -std=gnu++17
+  INCLUDES = -I/root/cpp-workspace/HighPerformanceTradingGateway/include
+  OBJECT_DIR = CMakeFiles/HighPerformanceTradingGateway.dir
+  OBJECT_FILE_DIR = CMakeFiles/HighPerformanceTradingGateway.dir
+  TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGateway.dir/
+  TARGET_PDB = HighPerformanceTradingGateway.pdb
+
 build CMakeFiles/HighPerformanceTradingGateway.dir/src/FixMessageHandler.cpp.o: CXX_COMPILER__HighPerformanceTradingGateway_ /root/cpp-workspace/HighPerformanceTradingGateway/src/FixMessageHandler.cpp || cmake_object_order_depends_target_HighPerformanceTradingGateway
   DEP_FILE = CMakeFiles/HighPerformanceTradingGateway.dir/src/FixMessageHandler.cpp.o.d
   FLAGS = -Wall -Wextra -pedantic -Werror -std=gnu++17
@@ -89,15 +98,6 @@ build CMakeFiles/HighPerformanceTradingGateway.dir/src/ThreadPool.cpp.o: CXX_COM
   TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGateway.dir/
   TARGET_PDB = HighPerformanceTradingGateway.pdb
 
-build CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o: CXX_COMPILER__HighPerformanceTradingGateway_ /root/cpp-workspace/HighPerformanceTradingGateway/main.cpp || cmake_object_order_depends_target_HighPerformanceTradingGateway
-  DEP_FILE = CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o.d
-  FLAGS = -Wall -Wextra -pedantic -Werror -std=gnu++17
-  INCLUDES = -I/root/cpp-workspace/HighPerformanceTradingGateway/include
-  OBJECT_DIR = CMakeFiles/HighPerformanceTradingGateway.dir
-  OBJECT_FILE_DIR = CMakeFiles/HighPerformanceTradingGateway.dir
-  TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGateway.dir/
-  TARGET_PDB = HighPerformanceTradingGateway.pdb
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target HighPerformanceTradingGateway
@@ -106,7 +106,7 @@ build CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o: CXX_COMPILER__Hig
 #############################################
 # Link the executable HighPerformanceTradingGateway
 
-build HighPerformanceTradingGateway: CXX_EXECUTABLE_LINKER__HighPerformanceTradingGateway_ CMakeFiles/HighPerformanceTradingGateway.dir/src/FixMessageHandler.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/OrderManager.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/MarketDataProcessor.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/Logger.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/ThreadPool.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o
+build HighPerformanceTradingGateway: CXX_EXECUTABLE_LINKER__HighPerformanceTradingGateway_ CMakeFiles/HighPerformanceTradingGateway.dir/main.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/FixMessageHandler.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/OrderManager.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/MarketDataProcessor.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/Logger.cpp.o CMakeFiles/HighPerformanceTradingGateway.dir/src/ThreadPool.cpp.o
   OBJECT_DIR = CMakeFiles/HighPerformanceTradingGateway.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -159,6 +159,51 @@ build CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/LoggerTest.cpp.o: C
   TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGatewayTests.dir/
   TARGET_PDB = HighPerformanceTradingGatewayTests.pdb
 
+build CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/FixMessageHandler.cpp.o: CXX_COMPILER__HighPerformanceTradingGatewayTests_ /root/cpp-workspace/HighPerformanceTradingGateway/src/FixMessageHandler.cpp || cmake_object_order_depends_target_HighPerformanceTradingGatewayTests
+  DEP_FILE = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/FixMessageHandler.cpp.o.d
+  FLAGS = -DGTEST_HAS_PTHREAD=1 -std=gnu++17
+  INCLUDES = -I/root/cpp-workspace/HighPerformanceTradingGateway/include
+  OBJECT_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir
+  OBJECT_FILE_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGatewayTests.dir/
+  TARGET_PDB = HighPerformanceTradingGatewayTests.pdb
+
+build CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/OrderManager.cpp.o: CXX_COMPILER__HighPerformanceTradingGatewayTests_ /root/cpp-workspace/HighPerformanceTradingGateway/src/OrderManager.cpp || cmake_object_order_depends_target_HighPerformanceTradingGatewayTests
+  DEP_FILE = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/OrderManager.cpp.o.d
+  FLAGS = -DGTEST_HAS_PTHREAD=1 -std=gnu++17
+  INCLUDES = -I/root/cpp-workspace/HighPerformanceTradingGateway/include
+  OBJECT_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir
+  OBJECT_FILE_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGatewayTests.dir/
+  TARGET_PDB = HighPerformanceTradingGatewayTests.pdb
+
+build CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/MarketDataProcessor.cpp.o: CXX_COMPILER__HighPerformanceTradingGatewayTests_ /root/cpp-workspace/HighPerformanceTradingGateway/src/MarketDataProcessor.cpp || cmake_object_order_depends_target_HighPerformanceTradingGatewayTests
+  DEP_FILE = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/MarketDataProcessor.cpp.o.d
+  FLAGS = -DGTEST_HAS_PTHREAD=1 -std=gnu++17
+  INCLUDES = -I/root/cpp-workspace/HighPerformanceTradingGateway/include
+  OBJECT_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir
+  OBJECT_FILE_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGatewayTests.dir/
+  TARGET_PDB = HighPerformanceTradingGatewayTests.pdb
+
+build CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/Logger.cpp.o: CXX_COMPILER__HighPerformanceTradingGatewayTests_ /root/cpp-workspace/HighPerformanceTradingGateway/src/Logger.cpp || cmake_object_order_depends_target_HighPerformanceTradingGatewayTests
+  DEP_FILE = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/Logger.cpp.o.d
+  FLAGS = -DGTEST_HAS_PTHREAD=1 -std=gnu++17
+  INCLUDES = -I/root/cpp-workspace/HighPerformanceTradingGateway/include
+  OBJECT_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir
+  OBJECT_FILE_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGatewayTests.dir/
+  TARGET_PDB = HighPerformanceTradingGatewayTests.pdb
+
+build CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/ThreadPool.cpp.o: CXX_COMPILER__HighPerformanceTradingGatewayTests_ /root/cpp-workspace/HighPerformanceTradingGateway/src/ThreadPool.cpp || cmake_object_order_depends_target_HighPerformanceTradingGatewayTests
+  DEP_FILE = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/ThreadPool.cpp.o.d
+  FLAGS = -DGTEST_HAS_PTHREAD=1 -std=gnu++17
+  INCLUDES = -I/root/cpp-workspace/HighPerformanceTradingGateway/include
+  OBJECT_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir
+  OBJECT_FILE_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/HighPerformanceTradingGatewayTests.dir/
+  TARGET_PDB = HighPerformanceTradingGatewayTests.pdb
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target HighPerformanceTradingGatewayTests
@@ -167,7 +212,7 @@ build CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/LoggerTest.cpp.o: C
 #############################################
 # Link the executable HighPerformanceTradingGatewayTests
 
-build HighPerformanceTradingGatewayTests: CXX_EXECUTABLE_LINKER__HighPerformanceTradingGatewayTests_ CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/FixMessageHandlerTest.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/OrderManagerTest.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/MarketDataProcessorTest.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/LoggerTest.cpp.o | /usr/lib/x86_64-linux-gnu/libgtest_main.a /usr/lib/x86_64-linux-gnu/libgtest.a
+build HighPerformanceTradingGatewayTests: CXX_EXECUTABLE_LINKER__HighPerformanceTradingGatewayTests_ CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/FixMessageHandlerTest.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/OrderManagerTest.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/MarketDataProcessorTest.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/test/LoggerTest.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/FixMessageHandler.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/OrderManager.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/MarketDataProcessor.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/Logger.cpp.o CMakeFiles/HighPerformanceTradingGatewayTests.dir/src/ThreadPool.cpp.o | /usr/lib/x86_64-linux-gnu/libgtest_main.a /usr/lib/x86_64-linux-gnu/libgtest.a
   LINK_LIBRARIES = -lpthread  /usr/lib/x86_64-linux-gnu/libgtest_main.a  /usr/lib/x86_64-linux-gnu/libgtest.a
   OBJECT_DIR = CMakeFiles/HighPerformanceTradingGatewayTests.dir
   POST_BUILD = :

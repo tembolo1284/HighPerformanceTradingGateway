@@ -1,0 +1,45 @@
+
+---
+
+### **GitHub Actions Workflow**
+
+Save the following file as `.github/workflows/build.yml`:
+
+```yaml
+name: C++ CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y cmake ninja-build g++ libgtest-dev
+        # Build Google Test manually
+        cd /usr/src/gtest
+        sudo cmake -B build .
+        sudo cmake --build build
+        sudo cp build/libgtest*.a /usr/lib
+
+    - name: Configure project
+      run: cmake -B build -G Ninja
+
+    - name: Build project
+      run: cmake --build build
+
+    - name: Run tests
+      run: ctest --test-dir build --output-on-failure
+

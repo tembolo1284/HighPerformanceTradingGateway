@@ -8,6 +8,9 @@ project(HighPerformanceTradingGateway VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Include directories
+include_directories(include)
+
 # Source files for the main application
 set(SOURCES
     src/FixMessageHandler.cpp
@@ -15,14 +18,10 @@ set(SOURCES
     src/MarketDataProcessor.cpp
     src/Logger.cpp
     src/ThreadPool.cpp
-    main.cpp
 )
 
 # Main application executable
-add_executable(HighPerformanceTradingGateway ${SOURCES})
-
-# Include directories for the main application
-target_include_directories(HighPerformanceTradingGateway PRIVATE include)
+add_executable(HighPerformanceTradingGateway main.cpp ${SOURCES})
 
 # Compiler warnings
 if (MSVC)
@@ -46,7 +45,7 @@ set(TEST_SOURCES
 )
 
 # Test executable
-add_executable(HighPerformanceTradingGatewayTests ${TEST_SOURCES})
+add_executable(HighPerformanceTradingGatewayTests ${TEST_SOURCES} ${SOURCES})
 
 # Link libraries for tests
 target_link_libraries(HighPerformanceTradingGatewayTests
