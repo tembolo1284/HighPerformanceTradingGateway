@@ -1,17 +1,26 @@
-#ifndef LOGGER_HPP
-#define LOGGER_HPP
+// include/Logger.hpp
+#ifndef HIGH_PERFORMANCE_TRADING_GATEWAY_LOGGER_HPP
+#define HIGH_PERFORMANCE_TRADING_GATEWAY_LOGGER_HPP
 
 #include <string>
 #include <mutex>
 
 class Logger {
 public:
-    // Log a message
-    static void log(const std::string& message);
+    enum class Level {
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR,
+        FATAL
+    };
+
+    void log(Level level, const std::string& message);
 
 private:
-    static std::mutex logMutex_; // Mutex for thread-safe logging
+    std::mutex mutex_;
+    static std::string levelToString(Level level);
 };
 
-#endif // LOGGER_HPP
+#endif // HIGH_PERFORMANCE_TRADING_GATEWAY_LOGGER_HPP
 

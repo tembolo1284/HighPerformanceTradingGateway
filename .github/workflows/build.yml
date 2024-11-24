@@ -2,31 +2,149 @@ name: C++ CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+env:
+  BUILD_TYPE: Release
+  CPP_STD: 17
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        compiler: [{cpp: g++, c: gcc}, {cpp: clang++, c: clang}]
+        include:
+          - os: ubuntu-latest
+            boost-package: libboost-all-dev
 
-    - name: Install dependencies
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Fetch all history for all tags and branches
+
+    - name: Setup Environment
+      run: |
+        echo "CXX=${{ matrix.compiler.cpp }}" >> $GITHUB_ENV
+        echo "CC=${{ matrix.compiler.c }}" >> $GITHUB_ENV
+
+    - name: Cache Dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/pip
+          ~/Library/Caches/Homebrew
+          ~/.conan
+          build/_deps
+        key: ${{ runner.os }}-deps-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-deps-
+
+    - name: Install Dependencies
       run: |
         sudo apt update
-        sudo apt install -y cmake ninja-build g++
+        sudo apt install -y \
+          cmake \
+          ninja-build \
+          ${{ matrix.compiler.cpp }} \
+          ${{ matrix.compiler.c }} \
+          ${{ matrix.boost-package }} \
+          lcov \
+          gcovr
 
-    - name: Clean and Configure project
+    - name: Configure CMake
       run: |
-        rm -rf build
-        cmake -B build -G Ninja
+        cmake -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_CXX_STANDARD=${{env.CPP_STD}} \
+          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -coverage" \
+          -DCMAKE_EXE_LINKER_FLAGS="-coverage"
 
-    - name: Build project
-      run: cmake --build build
+    - name: Build
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
-    - name: Run tests
-      run: ctest --test-dir build --output-on-failure --verbose
+    - name: Run Tests
+      working-directory: ${{github.workspace}}/build
+      run: |
+        ctest --output-on-failure --verbose -C ${{env.BUILD_TYPE}}
+
+    - name: Generate Coverage Report
+      run: |
+        lcov --capture --directory build --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' '*/test/*' '*/build/_deps/*' --output-file coverage.filtered.info
+        lcov --list coverage.filtered.info
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-coverage-report
+        path: coverage.filtered.info
+        retention-days: 30
+
+    - name: Build Examples
+      run: |
+        echo "Building fix_client..."
+        cmake --build build --target fix_client
+
+    - name: Check Binary Sizes
+      run: |
+        echo "Binary sizes:"
+        ls -lh build/HighPerformanceTradingGateway
+        ls -lh build/fix_client
+
+    - name: Run Static Analysis
+      run: |
+        sudo apt-get install -y cppcheck
+        cppcheck --enable=all --suppress=missingIncludeSystem --error-exitcode=1 \
+          --inline-suppr \
+          -I include \
+          src/ examples/
+
+  sanitizer-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y cmake ninja-build g++ libboost-all-dev
+
+    - name: Build with Address Sanitizer
+      run: |
+        cmake -B build-asan -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
+        cmake --build build-asan
+
+    - name: Run Tests with ASAN
+      working-directory: ${{github.workspace}}/build-asan
+      run: ctest --output-on-failure --verbose
+
+  deploy:
+    needs: [build-and-test, sanitizer-check]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Create Release Package
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --target package
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          build/*.tar.gz
+          build/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
