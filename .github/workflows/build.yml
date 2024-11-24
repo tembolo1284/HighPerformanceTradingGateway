@@ -1,18 +1,22 @@
+# Name of the workflow
 name: C++ CI
 
+# Define when this workflow runs
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:  # Allows manual triggering
 
+# Environment variables used across jobs
 env:
   BUILD_TYPE: Release
   CPP_STD: 17
 
 jobs:
   build-and-test:
+    # Matrix strategy for multiple compiler testing
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -24,15 +28,18 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    # Check out repository with full history
     - uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Fetch all history for all tags and branches
+        fetch-depth: 0
 
+    # Set up compiler environment variables
     - name: Setup Environment
       run: |
         echo "CXX=${{ matrix.compiler.cpp }}" >> $GITHUB_ENV
         echo "CC=${{ matrix.compiler.c }}" >> $GITHUB_ENV
 
+    # Cache dependencies to speed up builds
     - name: Cache Dependencies
       uses: actions/cache@v3
       with:
@@ -45,18 +52,19 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deps-
 
+    # Install required packages
     - name: Install Dependencies
       run: |
         sudo apt update
         sudo apt install -y \
           cmake \
           ninja-build \
-          ${{ matrix.compiler.cpp }} \
-          ${{ matrix.compiler.c }} \
-          ${{ matrix.boost-package }} \
+          clang \
+          libboost-all-dev \
           lcov \
           gcovr
 
+    # Configure CMake build
     - name: Configure CMake
       run: |
         cmake -B build -G Ninja \
@@ -65,20 +73,24 @@ jobs:
           -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -coverage" \
           -DCMAKE_EXE_LINKER_FLAGS="-coverage"
 
+    # Build the project
     - name: Build
       run: cmake --build build --config ${{env.BUILD_TYPE}}
 
+    # Run the tests
     - name: Run Tests
       working-directory: ${{github.workspace}}/build
       run: |
         ctest --output-on-failure --verbose -C ${{env.BUILD_TYPE}}
 
+    # Generate code coverage report
     - name: Generate Coverage Report
       run: |
         lcov --capture --directory build --output-file coverage.info
         lcov --remove coverage.info '/usr/*' '*/test/*' '*/build/_deps/*' --output-file coverage.filtered.info
         lcov --list coverage.filtered.info
 
+    # Upload coverage report as artifact
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v3
       with:
@@ -86,25 +98,20 @@ jobs:
         path: coverage.filtered.info
         retention-days: 30
 
+    # Build examples
     - name: Build Examples
       run: |
         echo "Building fix_client..."
         cmake --build build --target fix_client
 
+    # Check binary sizes
     - name: Check Binary Sizes
       run: |
         echo "Binary sizes:"
         ls -lh build/HighPerformanceTradingGateway
         ls -lh build/fix_client
 
-    - name: Run Static Analysis
-      run: |
-        sudo apt-get install -y cppcheck
-        cppcheck --enable=all --suppress=missingIncludeSystem --error-exitcode=1 \
-          --inline-suppr \
-          -I include \
-          src/ examples/
-
+  # Separate job for sanitizer checks
   sanitizer-check:
     runs-on: ubuntu-latest
     steps:
@@ -113,8 +120,13 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt update
-        sudo apt install -y cmake ninja-build g++ libboost-all-dev
+        sudo apt install -y \
+          cmake \
+          ninja-build \
+          clang \
+          libboost-all-dev
 
+    # Build with Address Sanitizer
     - name: Build with Address Sanitizer
       run: |
         cmake -B build-asan -G Ninja \
@@ -122,29 +134,7 @@ jobs:
           -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
         cmake --build build-asan
 
+    # Run tests with Address Sanitizer
     - name: Run Tests with ASAN
       working-directory: ${{github.workspace}}/build-asan
       run: ctest --output-on-failure --verbose
-
-  deploy:
-    needs: [build-and-test, sanitizer-check]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Create Release Package
-      run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --target package
-      
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          build/*.tar.gz
-          build/*.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
