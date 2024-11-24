@@ -5,6 +5,7 @@ HighPerformanceTradingGateway is a low-latency, multithreaded C++ application de
 ## Features
 
 ### Core Features
+
 - **Order Management**: Create, modify, and cancel orders with thread-safe operations
 - **Market Data Processing**: Efficiently process real-time market data feeds
 - **FIX Protocol Handling**: Parse and generate FIX messages with consistent field ordering
@@ -13,6 +14,7 @@ HighPerformanceTradingGateway is a low-latency, multithreaded C++ application de
 - **Scalable Architecture**: Designed with extensibility in mind
 
 ### Network Features
+
 - **Client-Server Architecture**: Supports multiple concurrent client connections
 - **Asynchronous I/O**: Uses boost::asio for efficient network operations
 - **Message Queuing**: Thread-safe message queue for order processing
