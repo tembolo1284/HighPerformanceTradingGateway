@@ -1,26 +1,22 @@
-# Name of the workflow
 name: C++ CI
 
-# Define when this workflow runs
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
 
-# Environment variables used across jobs
 env:
   BUILD_TYPE: Release
   CPP_STD: 17
 
 jobs:
   build-and-test:
-    # Matrix strategy for multiple compiler testing
     strategy:
       matrix:
         os: [ubuntu-latest]
-        compiler: [{cpp: g++, c: gcc}, {cpp: clang++, c: clang}]
+        compiler: [{cpp: g++, c: gcc}]  # Removed clang for now due to lcov compatibility
         include:
           - os: ubuntu-latest
             boost-package: libboost-all-dev
@@ -28,18 +24,15 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    # Check out repository with full history
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    # Set up compiler environment variables
     - name: Setup Environment
       run: |
         echo "CXX=${{ matrix.compiler.cpp }}" >> $GITHUB_ENV
         echo "CC=${{ matrix.compiler.c }}" >> $GITHUB_ENV
 
-    # Cache dependencies to speed up builds
     - name: Cache Dependencies
       uses: actions/cache@v3
       with:
@@ -52,45 +45,39 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deps-
 
-    # Install required packages
     - name: Install Dependencies
       run: |
         sudo apt update
         sudo apt install -y \
           cmake \
           ninja-build \
-          clang \
+          gcc \
+          g++ \
           libboost-all-dev \
-          lcov \
-          gcovr
+          lcov
 
-    # Configure CMake build
     - name: Configure CMake
       run: |
         cmake -B build -G Ninja \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_CXX_STANDARD=${{env.CPP_STD}} \
-          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -coverage" \
-          -DCMAKE_EXE_LINKER_FLAGS="-coverage"
+          -DCMAKE_CXX_FLAGS="--coverage -Wall -Wextra -Wpedantic" \
+          -DCMAKE_C_FLAGS="--coverage"
 
-    # Build the project
     - name: Build
-      run: cmake --build build --config ${{env.BUILD_TYPE}}
+      run: cmake --build build
 
-    # Run the tests
     - name: Run Tests
       working-directory: ${{github.workspace}}/build
       run: |
-        ctest --output-on-failure --verbose -C ${{env.BUILD_TYPE}}
+        ctest --output-on-failure --verbose
 
-    # Generate code coverage report
     - name: Generate Coverage Report
       run: |
-        lcov --capture --directory build --output-file coverage.info
+        lcov --directory build --capture --output-file coverage.info
         lcov --remove coverage.info '/usr/*' '*/test/*' '*/build/_deps/*' --output-file coverage.filtered.info
         lcov --list coverage.filtered.info
 
-    # Upload coverage report as artifact
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v3
       with:
@@ -98,21 +85,19 @@ jobs:
         path: coverage.filtered.info
         retention-days: 30
 
-    # Build examples
     - name: Build Examples
       run: |
         echo "Building fix_client..."
         cmake --build build --target fix_client
 
-    # Check binary sizes
     - name: Check Binary Sizes
       run: |
         echo "Binary sizes:"
         ls -lh build/HighPerformanceTradingGateway
         ls -lh build/fix_client
 
-  # Separate job for sanitizer checks
-  sanitizer-check:
+  # Separate job for clang builds and sanitizer checks
+  clang-sanitizer:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -126,15 +111,18 @@ jobs:
           clang \
           libboost-all-dev
 
-    # Build with Address Sanitizer
-    - name: Build with Address Sanitizer
+    - name: Build with Clang and Address Sanitizer
+      env:
+        CC: clang
+        CXX: clang++
       run: |
         cmake -B build-asan -G Ninja \
           -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
+          -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
         cmake --build build-asan
 
-    # Run tests with Address Sanitizer
     - name: Run Tests with ASAN
       working-directory: ${{github.workspace}}/build-asan
-      run: ctest --output-on-failure --verbose
+      run: |
+        ctest --output-on-failure --verbose
