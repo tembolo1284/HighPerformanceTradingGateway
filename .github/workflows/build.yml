@@ -1,4 +1,4 @@
-name: C++ CI
+name: C++ CI with Docker
 
 on:
   push:
@@ -7,122 +7,80 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  BUILD_TYPE: Release
-  CPP_STD: 17
-
 jobs:
-  build-and-test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        compiler: [{cpp: g++, c: gcc}]  # Removed clang for now due to lcov compatibility
-        include:
-          - os: ubuntu-latest
-            boost-package: libboost-all-dev
-
-    runs-on: ${{ matrix.os }}
+  docker-build-and-test:
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: Setup Environment
-      run: |
-        echo "CXX=${{ matrix.compiler.cpp }}" >> $GITHUB_ENV
-        echo "CC=${{ matrix.compiler.c }}" >> $GITHUB_ENV
+    - name: Set Execute Permissions on Shell Script
+      run: chmod +x docker-run.sh
 
-    - name: Cache Dependencies
-      uses: actions/cache@v3
+    - name: Build Docker Image
+      run: ./docker-run.sh build
+
+    - name: Run Server in Docker
+      run: |
+        ./docker-run.sh server &
+        sleep 10 # Allow server time to start
+
+    - name: Run Client in Docker
+      run: ./docker-run.sh client -i # Example: Replace `-i` with desired client mode or options
+
+    - name: Clean Up Docker Resources
+      if: always()
+      run: ./docker-run.sh clean
+
+  docker-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
       with:
-        path: |
-          ~/.cache/pip
-          ~/Library/Caches/Homebrew
-          ~/.conan
-          build/_deps
-        key: ${{ runner.os }}-deps-${{ hashFiles('**/CMakeLists.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-deps-
+        fetch-depth: 0
 
-    - name: Install Dependencies
+    - name: Set Execute Permissions on Shell Script
+      run: chmod +x docker-run.sh
+
+    - name: Build Docker Image with Coverage
+      run: ./docker-run.sh build
+
+    - name: Run Tests in Docker
       run: |
-        sudo apt update
-        sudo apt install -y \
-          cmake \
-          ninja-build \
-          gcc \
-          g++ \
-          libboost-all-dev \
-          lcov
+        ./docker-run.sh server &
+        sleep 10 # Wait for the server to start
+        ./docker-run.sh client --test-coverage
 
-    - name: Configure CMake
-      run: |
-        cmake -B build -G Ninja \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_CXX_STANDARD=${{env.CPP_STD}} \
-          -DCMAKE_CXX_FLAGS="--coverage -Wall -Wextra -Wpedantic" \
-          -DCMAKE_C_FLAGS="--coverage"
-
-    - name: Build
-      run: cmake --build build
-
-    - name: Run Tests
-      working-directory: ${{github.workspace}}/build
-      run: |
-        ctest --output-on-failure --verbose
-
-    - name: Generate Coverage Report
+    - name: Generate and Upload Coverage Report
       run: |
         lcov --directory build --capture --output-file coverage.info
         lcov --remove coverage.info '/usr/*' '*/test/*' '*/build/_deps/*' --output-file coverage.filtered.info
         lcov --list coverage.filtered.info
-
-    - name: Upload Coverage Report
+      env:
+        COVERAGE_DIR: ./coverage
       uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: coverage.filtered.info
+        path: ./coverage/coverage.filtered.info
         retention-days: 30
 
-    - name: Build Examples
-      run: |
-        echo "Building fix_client..."
-        cmake --build build --target fix_client
-
-    - name: Check Binary Sizes
-      run: |
-        echo "Binary sizes:"
-        ls -lh build/HighPerformanceTradingGateway
-        ls -lh build/fix_client
-
-  # Separate job for clang builds and sanitizer checks
-  clang-sanitizer:
+  sanitizer-check:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-    - name: Install Dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y \
-          cmake \
-          ninja-build \
-          clang \
-          libboost-all-dev
+    - name: Install Dependencies for Sanitizers
+      run: sudo apt-get update && sudo apt-get install -y clang
 
-    - name: Build with Clang and Address Sanitizer
-      env:
-        CC: clang
-        CXX: clang++
-      run: |
-        cmake -B build-asan -G Ninja \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
-          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
-        cmake --build build-asan
+    - name: Build Docker Image with Sanitizer
+      run: ./docker-run.sh build
 
-    - name: Run Tests with ASAN
-      working-directory: ${{github.workspace}}/build-asan
-      run: |
-        ctest --output-on-failure --verbose
+    - name: Run ASAN Tests in Docker
+      run: ./docker-run.sh client --asan
+

@@ -94,6 +94,7 @@ int main() {
             auto time_diff = std::chrono::duration_cast<std::chrono::seconds>(
                 current_time - last_stats_time).count();
 
+        if (time_diff >= 15) {
             // Calculate message rate and error rate
             size_t new_messages = stats.messages_processed - last_messages_processed;
             size_t new_errors = stats.errors_encountered - last_errors;
@@ -116,12 +117,13 @@ int main() {
                 last_errors = stats.errors_encountered;
                 last_stats_time = current_time;
             }
-
+        
             // Log significant changes or issues
             if (new_errors > 0) {
                 logger->log(Logger::Level::WARNING, 
                     "Detected " + std::to_string(new_errors) + " new errors in the last period");
             }
+        }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }

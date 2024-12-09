@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  server:
+    build: .
+    container_name: high-performance-server
+    ports:
+      - "8080:8080"
+    networks:
+      - cpp-net
+
+  client:
+    build: .
+    container_name: high-performance-client
+    entrypoint: /usr/local/bin/fix_client
+    networks:
+      - cpp-net
+    depends_on:
+      - server
+
+networks:
+  cpp-net:
+    name: cpp-net
+    driver: bridge
+
