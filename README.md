@@ -149,6 +149,96 @@ The system supports standard FIX message fields:
 - 38 : OrderQty
 - 40 : OrdType (2=Limit)
 
+## Docker Support
+
+The project includes Docker support for easy deployment and testing. The Docker setup provides an isolated environment to build and run the server and client applications, ensuring compatibility across different systems.
+
+### Docker Prerequisites
+
+- Docker (version 20.10 or higher)
+- Docker Compose (version 1.29 or higher)
+
+### Docker Files and Scripts
+
+- **Dockerfile**: Builds the server and client applications into Docker images.
+- **docker-compose.yml**: Manages the server and client services using Docker Compose.
+- **docker-run.sh**: A helper script to simplify building, running, and cleaning up Docker containers.
+
+### Using Docker
+
+#### Build the Docker Images
+Run the following command to build the Docker images for the project:
+```bash
+./docker-run.sh build
+```
+
+#### Run the Server
+To start the server in a Docker container:
+```bash
+./docker-run.sh server
+```
+
+The server will run on port 8080 by default and provide real-time statistics about its activity.
+
+#### Run the Client
+To run the client with a default FIX order:
+
+```bash
+./docker-run.sh client
+```
+
+By default, the client sends the following order:
+
+```
+35=D|49=SENDER|56=TARGET|11=ORDER123|55=AAPL|54=1|44=150.50|38=100|40=2|
+```
+
+You can also pass custom arguments to the client. For example:
+
+#### Interactive Mode:
+
+```
+./docker-run.sh client -i
+```
+
+#### Batch File Mode:
+
+```
+./docker-run.sh client -f examples/data/sample_orders.txt
+```
+
+#### Clean Up Docker Resources:
+
+To stop and remove all containers, networks, and intermediate Docker layers:
+
+```
+./docker-run.sh clean
+```
+
+### Docker Compose Services
+
+The docker-compose.yml file defines the following services:
+
+- server: Runs the HighPerformanceTradingGateway server.
+
+- client: Runs the fix_client utility, which can operate in various modes (single order, batch file, or interactive).
+
+By default, the server and client communicate over a custom Docker network (cpp-net), allowing seamless interaction between containers.
+
+### Verifying Docker Setup
+To verify that the containers are running correctly:
+
+1. Start the server:
+```
+./docker-run.sh server
+```
+
+2. Start the client:
+```
+./docker-run.sh client
+```
+The client should connect to the server and process messages without errors.
+
 ## Testing
 
 The project includes comprehensive test suites:

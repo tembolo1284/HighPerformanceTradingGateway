@@ -34,7 +34,8 @@ run_server() {
 run_client() {
     echo "Starting client..."
     ensure_network
-    docker-compose run --rm client "$@"
+    # Default argument to send a single FIX order if no additional arguments are provided
+    docker-compose run --rm client -o "35=D|49=SENDER|56=TARGET|11=ORDER123|55=AAPL|54=1|44=150.50|38=100|40=2|" "$@"
 }
 
 # Main script

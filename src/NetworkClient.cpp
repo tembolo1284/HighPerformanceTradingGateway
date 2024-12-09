@@ -8,12 +8,14 @@
 
 NetworkClient::NetworkClient(const network::ClientConfig& config,
                            std::shared_ptr<Logger> logger)
-    : logger_(std::move(logger))
-    , config_(config) {
-    
+    : logger_(std::move(logger)), config_(config) {
+    // Use SERVER_HOST environment variable if available, otherwise default to localhost
+    const char* server_host_env = std::getenv("SERVER_HOST");
+    config_.host = server_host_env ? std::string(server_host_env) : "localhost";
+
     socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_context_);
-    logger_->log(Logger::Level::DEBUG, "NetworkClient initialized with host: " + 
-                 config.host + ", port: " + std::to_string(config.port));
+    logger_->log(Logger::Level::DEBUG, "NetworkClient initialized with host: " +
+                 config_.host + ", port: " + std::to_string(config_.port));
 }
 
 NetworkClient::~NetworkClient() {
@@ -27,7 +29,7 @@ bool NetworkClient::connect() {
     }
 
     try {
-        logger_->log(Logger::Level::INFO, "Attempting to connect to " + 
+        logger_->log(Logger::Level::INFO, "Attempting to connect to " +
                      config_.host + ":" + std::to_string(config_.port));
 
         boost::asio::ip::tcp::resolver resolver(io_context_);
@@ -75,7 +77,7 @@ bool NetworkClient::send(const network::Message& message) {
     }
 
     try {
-        logger_->log(Logger::Level::DEBUG, "Sending message of type: " + 
+        logger_->log(Logger::Level::DEBUG, "Sending message of type: " +
                      std::to_string(static_cast<int>(message.type)));
         return sendInternal(message);
     } catch (const std::exception& e) {
@@ -88,7 +90,7 @@ std::future<bool> NetworkClient::sendAsync(const network::Message& message) {
     return std::async(std::launch::async, [this, message]() {
         logger_->log(Logger::Level::DEBUG, "Starting async message send");
         bool result = send(message);
-        logger_->log(Logger::Level::DEBUG, "Async send completed with result: " + 
+        logger_->log(Logger::Level::DEBUG, "Async send completed with result: " +
                      std::string(result ? "success" : "failure"));
         return result;
     });
@@ -96,7 +98,7 @@ std::future<bool> NetworkClient::sendAsync(const network::Message& message) {
 
 bool NetworkClient::sendFile(const std::string& filepath, network::Message::Type type) {
     logger_->log(Logger::Level::INFO, "Attempting to send file: " + filepath);
-    
+
     std::ifstream file(filepath);
     if (!file) {
         handleError("Failed to open file: " + filepath);
@@ -106,7 +108,7 @@ bool NetworkClient::sendFile(const std::string& filepath, network::Message::Type
     size_t lineCount = 0;
     size_t successCount = 0;
     std::string line;
-    
+
     while (std::getline(file, line)) {
         ++lineCount;
         if (line.empty()) {
@@ -117,7 +119,7 @@ bool NetworkClient::sendFile(const std::string& filepath, network::Message::Type
         if (send(message)) {
             ++successCount;
         } else {
-            logger_->log(Logger::Level::ERROR, "Failed to send line " + 
+            logger_->log(Logger::Level::ERROR, "Failed to send line " +
                          std::to_string(lineCount) + " from file");
         }
 
@@ -125,8 +127,8 @@ bool NetworkClient::sendFile(const std::string& filepath, network::Message::Type
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    logger_->log(Logger::Level::INFO, 
-        "File sending completed. Successfully sent " + std::to_string(successCount) + 
+    logger_->log(Logger::Level::INFO,
+        "File sending completed. Successfully sent " + std::to_string(successCount) +
         " of " + std::to_string(lineCount) + " lines");
 
     return successCount == lineCount;
@@ -136,11 +138,11 @@ bool NetworkClient::sendInternal(const network::Message& message) {
     try {
         // Prepare the message with a delimiter
         std::string data = message.payload + "\n";
-        
+
         // Send the message
         boost::system::error_code error;
         boost::asio::write(*socket_, boost::asio::buffer(data), error);
-        
+
         if (error) {
             handleError("Write error: " + error.message());
             connected_ = false;
@@ -159,7 +161,7 @@ bool NetworkClient::sendInternal(const network::Message& message) {
         // Process the response
         std::string response{
             boost::asio::buffers_begin(response_buffer.data()),
-            boost::asio::buffers_begin(response_buffer.data()) + 
+            boost::asio::buffers_begin(response_buffer.data()) +
                 response_buffer.size() - 1  // -1 to remove newline
         };
 
@@ -181,22 +183,22 @@ bool NetworkClient::sendInternal(const network::Message& message) {
 
 bool NetworkClient::reconnect() {
     logger_->log(Logger::Level::INFO, "Attempting to reconnect...");
-    
+
     for (size_t attempt = 0; attempt < config_.retry_attempts; ++attempt) {
-        logger_->log(Logger::Level::DEBUG, "Reconnection attempt " + 
-                     std::to_string(attempt + 1) + " of " + 
+        logger_->log(Logger::Level::DEBUG, "Reconnection attempt " +
+                     std::to_string(attempt + 1) + " of " +
                      std::to_string(config_.retry_attempts));
-        
+
         if (connect()) {
             logger_->log(Logger::Level::INFO, "Reconnection successful");
             return true;
         }
-        
+
         // Wait before retrying, with exponential backoff
         std::this_thread::sleep_for(std::chrono::milliseconds(100 * (1 << attempt)));
     }
-    
-    logger_->log(Logger::Level::ERROR, "Failed to reconnect after " + 
+
+    logger_->log(Logger::Level::ERROR, "Failed to reconnect after " +
                  std::to_string(config_.retry_attempts) + " attempts");
     return false;
 }
@@ -215,3 +217,4 @@ void NetworkClient::handleError(const std::string& error_msg) {
     last_error_ = error_msg;
     logger_->log(Logger::Level::ERROR, error_msg);
 }
+
